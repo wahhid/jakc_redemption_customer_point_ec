@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="view_rdm_customer_point_form_inherit_rdm_customer" model="ir.ui.view">
+            <field name="name">rdm.customer.point.form.inherit.rdm.customer</field>
+            <field name="model">rdm.customer</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="jakc_redemption_customer.view_rdm_customer_form"/>					
+            <field name="arch" type="xml">            	
+				<field name="social_id" position="after">
+					<field name="point"/>
+				</field>                    
+				<notebook position="inside">
+                    <page string="Points">
+                        <field name="customer_point_ids" widget="one2many_list" nolabel="1">
+                            <tree>                                                                                                
+                                <field name="trans_type"/>
+                                <field name="point"/>                                             
+                                <field name="expired_date"/>	                                                                                                                                                                                         
+                            </tree>                    
+                        </field>
+                    </page>
+                </notebook>			
+            </field>
+        </record>
+    </data>
+</openerp>
