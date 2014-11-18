@@ -13,7 +13,7 @@
 				<notebook position="inside">
                     <page string="Points">
                         <field name="customer_point_ids" widget="one2many_list" nolabel="1">
-                            <tree>                                                                                                
+                            <tree>                            	                                                                                          
                                 <field name="trans_type"/>
                                 <field name="point"/>                                             
                                 <field name="expired_date"/>	                                                                                                                                                                                         
@@ -23,5 +23,6 @@
                 </notebook>			
             </field>
         </record>
+		        
     </data>
 </openerp>
