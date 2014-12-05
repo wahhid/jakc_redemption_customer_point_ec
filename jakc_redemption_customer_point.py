@@ -4,7 +4,8 @@ AVAILABLE_STATES = [
     ('draft','New'),
     ('active','Active'),
     ('expired','Expired'),
-    ('deleted','Deleted'),    
+    ('req_delete','Request For Delete'),
+    ('delete','Deleted')    
 ]
 
 class rdm_customer_point(osv.osv):
