@@ -1,4 +1,8 @@
 from openerp.osv import fields, osv
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 AVAILABLE_STATES = [
     ('draft','New'),
@@ -16,7 +20,17 @@ class rdm_customer_point(osv.osv):
         sql_req = "UPDATE rdm.customer.point SET state='expired' WHERE expired_date=now()"
         cr.execute(sql_req)
         return True
-        
+
+    def add_or_deduct_point(self, cr, uid, values, context=None):        
+        _logger.info('Start Deduct Point')                
+        point_data = {}
+        point_data.update({'customer_id': values.get('customer_id')})
+        point_data.update({'trans_id': values.get('trans_id')})
+        point_data.update({'trans_type':values.get('trans_type')})
+        point_data.update({'point': values.get('point')})                
+        self.pool.get('rdm.customer.point').create(cr, uid, point_data, context=context)
+        _logger.info('End Deduct Point')
+            
     _columns = {
         'customer_id': fields.many2one('rdm.customer','Customer', required=True),
         'trans_id': fields.integer('Transaction ID', readonly=True),

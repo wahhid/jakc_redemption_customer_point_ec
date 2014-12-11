@@ -6,13 +6,14 @@ class rdm_customer(osv.osv):
     def get_points(self, cr, uid, ids, field_name, args, context=None):
         id = ids[0]
         res = {}
-        sql_req= "SELECT sum(c.point) as total FROM rdm_customer_point c WHERE (c.customer_id=" + str(id) + ") AND state='active' AND expired_date > now()"        
+        sql_req = "SELECT sum(c.point) as total FROM rdm_customer_point c WHERE (c.customer_id=" + str(id) + ") AND state='active' AND expired_date > now()"        
         cr.execute(sql_req)
         sql_res = cr.dictfetchone()
         if sql_res:
             total_coupons = sql_res['total']
         else:
             total_coupons = 0        
+        sql_req = "SELECT sum(c.point) as total FROM rdm_customer_point c WHERE (c.customer_id=" + str(id) + ") AND state='active' AND expired_date > now()"
         res[id] = total_coupons    
         return res
                     
