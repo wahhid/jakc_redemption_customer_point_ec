@@ -13,7 +13,9 @@ class rdm_customer(osv.osv):
             total_coupons = sql_res['total']
         else:
             total_coupons = 0        
+        
         sql_req = "SELECT sum(c.point) as total FROM rdm_customer_point c WHERE (c.customer_id=" + str(id) + ") AND state='active' AND expired_date > now()"
+        
         res[id] = total_coupons    
         return res
                     
@@ -21,4 +23,5 @@ class rdm_customer(osv.osv):
         'point': fields.function(get_points, type="integer", string='Points'),
         'customer_point_ids': fields.one2many('rdm.customer.point','customer_id','Points',readonly=True)        
     }
+    
 rdm_customer()
