@@ -15,8 +15,10 @@
                         <field name="customer_point_ids" widget="one2many_list" nolabel="1">
                             <tree>                            	                                                                                          
                                 <field name="trans_type"/>
-                                <field name="point"/>                                             
-                                <field name="expired_date"/>	                                                                                                                                                                                         
+                                <field name="point"/>
+                                <field name="usage"/>                                                                            
+                                <field name="expired_date"/>
+                                <field name="state"/>                                	                                                                                                                                                                                        
                             </tree>                    
                         </field>
                     </page>
