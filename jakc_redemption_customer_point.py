@@ -33,8 +33,8 @@ class rdm_customer_point(osv.osv):
         
     def get_customer_total_point(self, cr, uid, customer_id, context=None):            
         sql_req = """SELECT sum(a.point) as total FROM rdm_customer_point a   
-                  WHERE (a.customer_id=' + {0} + ') 
-                  AND state='active' AND expired_date > now()""".format(str(customer_id))
+                  WHERE (a.customer_id={0}) 
+                  AND a.state='active' AND a.expired_date > now()""".format(str(customer_id))
                           
         cr.execute(sql_req)
         sql_res = cr.dictfetchone()
@@ -46,11 +46,11 @@ class rdm_customer_point(osv.osv):
         return total_points
     
     def get_customer_total_point_usage(self, cr, uid, customer_id, context=None):            
-        sql_req = """SELECT sum(b.point) as total FROM rdm_customer_point a  
-                  LEFT JOIN rdm_customer_point_detail b 
-                  ON a.id = b.customer_point_id 
-                  WHERE (a.customer_id=' + {0} + ') 
-                  AND state='active' AND expired_date > now()""".format(str(customer_id))
+        sql_req = """SELECT sum(a.point) as total FROM rdm_customer_point_detail a  
+                  LEFT JOIN rdm_customer_point b 
+                  ON a.customer_point_id = b.id 
+                  WHERE (b.customer_id={0}) 
+                  AND b.state='active' AND b.expired_date > now()""".format(str(customer_id))
                           
         cr.execute(sql_req)
         sql_res = cr.dictfetchone()
@@ -65,35 +65,35 @@ class rdm_customer_point(osv.osv):
         id = ids[0]
         total_points = self.pool.get('rdm.customer.point.detail').get_point_usage(cr, uid, id, context=context) 
         res = {}
-        res[id] = total_points   
+        res[id] = 0   
         return res
     
-         
-    def add_or_deduct_point(self, cr, uid, values, context=None):        
-        _logger.info('Start Deduct Point')                
-        point_data = {}
-        point_data.update({'customer_id': values.get('customer_id')})
-        point_data.update({'trans_id': values.get('trans_id')})
-        point_data.update({'trans_type':values.get('trans_type')})
-        point_data.update({'point': values.get('point')}) 
-        point_data.update({'usage': values.get('usage')})                     
-        self.pool.get('rdm.customer.point').create(cr, uid, point_data, context=context)
-        _logger.info('End Deduct Point')
-            
+    
+    def add_point(self, cr, uid, values, context=None):
+        _logger.info('Start Add Point')
+        trans_data = {}
+        trans_data.update({'customer_id': values.get('customer_id')})
+        trans_data.update({'trans_id': values.get('trans_id')})
+        trans_data.update({'trans_type':values.get('trans_type')})
+        trans_data.update({'point': values.get('point')})                             
+        self.pool.get('rdm.customer.point').create(cr, uid, trans_data, context=context)
+        _logger.info('End Add Point')                
+                                
     _columns = {
         'customer_id': fields.many2one('rdm.customer','Customer', required=True),
         'trans_id': fields.integer('Transaction ID', readonly=True),                
         'trans_type': fields.selection([('promo','Promotion'),('point','Point'),('adjust','Adjust'),('reference','Reference'),('member','New Member')], 'Transaction Type'),        
         'point': fields.integer('Point #'),
-        'usage': fields.function(_get_usage, type="integer", string='Usage'),        
+        'usage': fields.function(_get_usage, type="integer", string='Usage'),
+        'is_rollback': fields.boolean('Rollback'),        
         'expired_date': fields.date('Expired Date'),
         'customer_point_detail_ids': fields.one2many('rdm.customer.point.detail','customer_point_id','Details'),
         'state': fields.selection(AVAILABLE_STATES,'Status',size=16,readonly=True), 
     }        
     
     _defaults = {
-        'point': lambda *a: '0',
-        'usage': lambda *a: '0',
+        'point': lambda *a: 0,        
+        'is_rollback': lambda *a: False,
         'state': lambda *a: 'active',
     }
 rdm_customer_point()
@@ -102,10 +102,10 @@ class rdm_customer_point_detail(osv.osv):
     _name = "rdm.customer.point.detail"
     _description = "Redemption Customer Point Detail"
     
-    def get_point_usage(self, cr, uid, customer_point_id, context=None):
+    def get_point_usage(self, cr, uid, trans_id, context=None):
         sql_req = """SELECT sum(a.point) as total FROM rdm_customer_point_detail a  
-                  WHERE (a.customer_id=' + {0} + ') 
-                  AND state='active' """.format(str(customer_point_id))
+                  WHERE (a.trans_id={0})  
+                  AND state='active' """.format(str(trans_id))
                           
         cr.execute(sql_req)
         sql_res = cr.dictfetchone()
@@ -120,7 +120,7 @@ class rdm_customer_point_detail(osv.osv):
         'customer_point_id': fields.many2one('rdm.customer.point','Customer Point'),
         'trans_id': fields.integer('Transaction ID', readonly=True),
         'reward_trans_id': fields.integer('Reward Transaction ID', readonly=True),
-        'trans_type': fields.selection([('promo','Promotion'),('point','Point'),('adjust','Adjust'),('reference','Reference'),('member','New Member')], 'Transaction Type'),                
+        'trans_type': fields.selection([('reward','Reward'),('adjust','Adjust')], 'Transaction Type'),                
         'point': fields.integer('Point'),
         'state': fields.selection(AVAILABLE_STATES,'Status',size=16,readonly=True),
     }        
