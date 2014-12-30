@@ -6,9 +6,14 @@ class rdm_customer(osv.osv):
     def get_points(self, cr, uid, ids, field_name, args, context=None):
         id = ids[0]
         res = {}
-        #total_usage = self.pool.get('rdm.customer.point').get_customer_total_point_usage(cr, uid, id, context=context)
-        #total_point = self.pool.get('rdm.customer.point').get_customer_total_point(cr, uid, id, context=context)                        
-        res[id] = 0        
+        total_usage = self.pool.get('rdm.customer.point').get_customer_total_point_usage(cr, uid, id, context=context)
+        total_point = self.pool.get('rdm.customer.point').get_customer_total_point(cr, uid, id, context=context)
+        if total_usage is None:
+            total_usage = 0
+        if total_point is None:
+            total_point = 0
+                                    
+        res[id] = total_point - total_usage        
         return res
                             
     _columns = {
