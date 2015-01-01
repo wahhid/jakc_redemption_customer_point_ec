@@ -12,8 +12,8 @@
 				</field>                    
 				<notebook position="inside">
                     <page string="Points">
-                        <field name="customer_point_ids" widget="one2many_list" nolabel="1">
-                            <tree>                            	                                                                                          
+                        <field name="customer_point_ids" widget="one2many_list" nolabel="1" >                        
+                            <tree string="Points">                            	                                                                                          
                                 <field name="trans_type"/>
                                 <field name="point"/>
                                 <field name="usage"/>                                                                            

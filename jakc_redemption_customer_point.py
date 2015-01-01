@@ -30,10 +30,13 @@ class rdm_customer_point(osv.osv):
         id = ids[0]
         return self.write(cr,uid,id,{'state': 'expired'},context=context)
     
-    def batch_expired_date(self, cr, uid, context=None):
-        sql_req = "UPDATE rdm.customer.point SET state='expired' WHERE expired_date=now()"
+    def process_expired(self, cr, uid, context=None):
+        _logger.info('Start Customer Point Process Expired')
+        now = datetime.now().strftime('%Y-%m-%d')
+        sql_req = "UPDATE rdm_customer_point SET state='expired' WHERE expired_date < '" + now + "' AND state='active'" 
         cr.execute(sql_req)
-        return True
+        _logger.info('End Customer Point Process Expired')
+        return True    
 
     def get_active_customer_point(self, cr, uid, context=None):
         args = [('state','=','active')]
@@ -44,7 +47,7 @@ class rdm_customer_point(osv.osv):
         sql_req = """SELECT sum(a.point) as total FROM rdm_customer_point a   
                   WHERE (a.customer_id={0}) 
                   AND a.state='active' AND a.expired_date > now()""".format(str(customer_id))
-                          
+                                          
         cr.execute(sql_req)
         sql_res = cr.dictfetchone()
         if sql_res:
@@ -73,7 +76,6 @@ class rdm_customer_point(osv.osv):
     def get_usages(self, cr, uid, ids, field_name, arg, context=None):          
         trans_id = ids[0]        
         res = {}
-        #total_points = self.pool.get('rdm.customer.point.detail').get_point_usage(cr, uid, trans_id, context=context)
         total_points = self.pool.get('rdm.customer.point.detail').get_point_usages(cr, uid, trans_id, context=context)
         _logger.info('Total Points : ' + str(total_points))                
         res[trans_id] = total_points                
@@ -165,14 +167,6 @@ class rdm_customer_point_detail(osv.osv):
             
         return total_points    
 
-    def get_point_usages(self, cr, uid, trans_id, context=None):
-        ids = self.search(cr, uid, [('trans_id', '=', trans_id)], context=context)
-        point_detail_ids = self.search(cr, uid, ids, context=context)
-        total_point_usage = 0
-        for point_detail_id in point_detail_ids:
-            total_point_usage = total_point_usage + point_detail_id.point
-        _logger.info('Total Point Usage : ' + str(total_point_usage))
-        return total_point_usage
                                        
     def deduct_point(self, cr, uid, values, context=None):
         trans_data = {}
@@ -186,11 +180,7 @@ class rdm_customer_point_detail(osv.osv):
         'customer_point_id': fields.many2one('rdm.customer.point','Customer Point'),
         'trans_id': fields.integer('Transaction ID', readonly=True),        
         'trans_type': fields.selection([('reward','Reward'),('adjust','Adjust')], 'Transaction Type'),                
-        'point': fields.integer('Point'),
-        'state': fields.selection(AVAILABLE_STATES,'Status',size=16,readonly=True),
+        'point': fields.integer('Point'),        
     }        
-    _defaults = {
-        'state': lambda *a: 'done',
-    }
     
 rdm_customer_point_detail()

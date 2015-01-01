@@ -7,7 +7,8 @@
     'init_xml' : [],
     'data' : [	
         'security/ir.model.access.csv',	
-        'jakc_redemption_customer_point_view.xml',                
+        'jakc_redemption_customer_point_view.xml',
+        'jakc_redemption_customer_point_scheduler.xml',                
         'jakc_redemption_customer_view.xml',        
     ],
     'installable': True,

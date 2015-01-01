@@ -1,4 +1,8 @@
 from openerp.osv import fields, osv
+import logging
+
+
+_logger = logging.getLogger(__name__)
 
 class rdm_customer(osv.osv):    
     _inherit = "rdm.customer"
@@ -6,8 +10,13 @@ class rdm_customer(osv.osv):
     def get_points(self, cr, uid, ids, field_name, args, context=None):
         id = ids[0]
         res = {}
+        
         total_usage = self.pool.get('rdm.customer.point').get_customer_total_point_usage(cr, uid, id, context=context)
         total_point = self.pool.get('rdm.customer.point').get_customer_total_point(cr, uid, id, context=context)
+        
+        _logger.info('Total Usage : ' + str(total_usage))
+        _logger.info('Total Point : ' + str(total_point))        
+        
         if total_usage is None:
             total_usage = 0
         if total_point is None:
