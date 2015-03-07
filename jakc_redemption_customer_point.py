@@ -36,7 +36,7 @@ class rdm_customer_point(osv.osv):
         sql_req = "UPDATE rdm_customer_point SET state='expired' WHERE expired_date < '" + now + "' AND state='active'" 
         cr.execute(sql_req)
         _logger.info('End Customer Point Process Expired')
-        return True    
+        return True
 
     def get_active_customer_point(self, cr, uid, context=None):
         args = [('state','=','active')]
@@ -98,9 +98,9 @@ class rdm_customer_point(osv.osv):
         sisa_point = point        
         today = datetime.today()
         args = [('customer_id','=',customer_id),('expired_date','>', today),('state','=','active')]        
-        ids = self.search(cr, uid, args, order='expired_date desc', context=context)
+        ids = self.search(cr, uid, args, order='expired_date asc, id desc', context=context)
         point_ids = self.browse(cr, uid, ids, context=context)
-        
+                
         for point_id in point_ids:
             avai_point = point_id.point - point_id.usage
             if avai_point < sisa_point:
@@ -125,8 +125,7 @@ class rdm_customer_point(osv.osv):
                 self.pool.get('rdm.customer.point.detail').deduct_point(cr, uid, trans_data, context=context)
                 #self.write(cr,uid,[id],{'usage': point_id.usage + sisa_point},context=context)  
                 super(rdm_customer_point,self).write(cr, uid, [point_id.id], {'usage': point_id.usage + sisa_point}, context=context)                          
-                break       
-                
+                break                       
         
     _columns = {
         'customer_id': fields.many2one('rdm.customer','Customer', required=True),

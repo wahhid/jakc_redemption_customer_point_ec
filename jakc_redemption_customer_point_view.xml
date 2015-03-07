@@ -12,6 +12,7 @@
                         <field name="trans_id"/>                        
                         <field name="trans_type"/>                            
                         <field name="point"/>
+                        <field name="expired_date"/>
                     </group>                    
                 </form>
             </field>
@@ -26,7 +27,8 @@
                     <field name="customer_id"/>
                     <field name="trans_id"/>                        
                     <field name="trans_type"/>                            
-                    <field name="point"/>                                
+                    <field name="point"/>        
+                    <field name="expired_date"/>                        
                 </tree>
             </field>
         </record>
